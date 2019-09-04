@@ -286,6 +286,39 @@ public class Relation extends BinaryFileCreator{
 		return -1;
 	}
 	
+	public void jump(Object val, DataInputStream dis) throws NumberFormatException, IOException
+	{
+		if(this.columnStore)
+		{
+			while(dis.available()!=0)
+			{
+				if(this.columnDataType.get(0).equals('s'))
+				{
+					if((""+val).equals(currentPointerCountValueAndOffset(dis).get(0)))
+						break;
+				}
+				else
+				{
+					if((Integer.parseInt(""+val)<=((int)currentPointerCountValueAndOffset(dis).get(0))))
+						break;	
+				}
+				next(dis);
+			}
+		}
+	}
+	
+	public boolean areThereAnyMoreTuples(DataInputStream dis) throws IOException
+	{
+		return dis.available()!=0;
+	}
+	
+	public void resetPointer(DataInputStream dis) throws Exception
+	{
+		dis = getDataInputStreamObject(this.filePathExtended);
+		if(this.headerBytes>0)
+			dis.skipBytes(this.headerBytes-1);
+	}
+	
 	public void theBrainOfRelation()
 	{
 		try 

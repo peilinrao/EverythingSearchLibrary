@@ -354,16 +354,16 @@ public class CSVImporter extends BinaryFileCreator
 		CSVImporter objOfCSVImporter = new CSVImporter("src/", 3, new ArrayList<Character>(Arrays.asList('s', 's', 's', 'i', 'i', 'i')));
 		objOfCSVImporter.theBrainOfCSVImportor("dummyTable.csv");
 		
-		Relation objOfRelation = new Relation("src/ColumnStore(0).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 's', 'i', 'i', 'i')));
+		Relation objOfRelation = new Relation("src/ColumnStore(0).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 's', 'i', 'i', 'i')), 3);
 		objOfRelation.readFromFile("src/ColumnStore(0).bin", true, 's');
 		
-		Relation objOfRelation2 = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 'i', 'i', 'i')));
+		Relation objOfRelation2 = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 'i', 'i', 'i')), 2);
 		objOfRelation2.readFromFile("src/ColumnStore(1).bin", true, 's');
 		
-		Relation objOfRelation3 = new Relation("src/ColumnStore(0).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 'i', 'i', 'i')));
+		Relation objOfRelation3 = new Relation("src/ColumnStore(0).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 'i', 'i', 'i')), 1);
 		objOfRelation3.readFromFile("src/ColumnStore(2).bin", true, 's');
 		
-		Relation objOfRelation4 = new Relation("src/ColumnStore(0).bin", true, 0, new ArrayList<Character>(Arrays.asList('i', 'i', 'i')));
+		Relation objOfRelation4 = new Relation("src/ColumnStore(0).bin", true, 0, new ArrayList<Character>(Arrays.asList('i', 'i', 'i')), 0);
 		objOfRelation4.readFromFile("src/RowStore.bin", false, 's');
 	}
 }

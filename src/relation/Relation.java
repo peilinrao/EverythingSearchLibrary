@@ -9,8 +9,12 @@ import java.util.Arrays;
 import dataImporter.binaryFileCreator.BinaryFileCreator;
 
 /*
- * - extractColumnDataTypesFromMap(int noOfColumns, String columnDataTypeInBinaryNumber): ArrayList<String>
- * 		Method to convert the second token of Map Header to Binary equivalent to find the column's data type
+ * Attributes:
+ * 	String filePathExtended;
+	boolean columnStore;
+	int headerBytes;
+	ArrayList<Character> columnDataType
+ * Methods:
  * - distinctValuesOfFirstColumn(): ArrayList<Object>
  * 		Get the distinct values of the first columns
  * - locationOfTuples(Object val): int
@@ -35,18 +39,20 @@ import dataImporter.binaryFileCreator.BinaryFileCreator;
 
 public class Relation extends BinaryFileCreator{
 
-	String filePathExtended = "src/ColumnStore(0).bin";
-	boolean columnStore = true;
-	int headerBytes = 0;
+	String filePathExtended;
+	int noOfColumnStores;
+	boolean columnStore;
+	int headerBytes;
 	ArrayList<Character> columnDataType = new ArrayList<Character>();
 	
-	public Relation(String filePathExtended, boolean columnStore, int headerBytes,ArrayList<Character> columnDataType)
+	public Relation(String filePathExtended, boolean columnStore, int headerBytes,ArrayList<Character> columnDataType, int noOfColumnStores)
 	{
 		super();
 		this.filePathExtended = filePathExtended;
 		this.columnStore = columnStore;
 		this.headerBytes = headerBytes;
 		this.columnDataType = columnDataType;
+		this.noOfColumnStores = noOfColumnStores;
 	}
 	
 	public String convertCurrentPointingByteToString(DataInputStream dis) throws IOException
@@ -319,6 +325,27 @@ public class Relation extends BinaryFileCreator{
 			dis.skipBytes(this.headerBytes-1);
 	}
 	
+	public Relation subRelation()
+	{
+		boolean columnStoreSubRel;
+		String filePathExtendedSubRel;
+		if(this.noOfColumnStores==1)
+		{
+			columnStoreSubRel = false;
+			filePathExtendedSubRel = "src/RowStore.bin";
+		}
+		else
+		{
+			columnStoreSubRel = true;
+			filePathExtendedSubRel = "src/ColumnStore("+ (Integer.parseInt(""+this.filePathExtended.charAt(this.filePathExtended.length()-6))+1) + ").bin";
+		}
+		int noOfColumnStoresSubRel = this.noOfColumnStores-1;
+		int headerBytesSubRel = 0;
+		ArrayList<Character> columnDataTypeSubRel = new ArrayList<Character>(this.columnDataType);columnDataTypeSubRel.remove(0);
+		
+		return new Relation(filePathExtendedSubRel, columnStoreSubRel, headerBytesSubRel, columnDataTypeSubRel, noOfColumnStoresSubRel);
+	}
+	
 	public void theBrainOfRelation()
 	{
 		try 
@@ -335,6 +362,8 @@ public class Relation extends BinaryFileCreator{
 			}
 			
 			System.out.println(locationOfTuples("g"));
+			
+			System.out.println("subRelation()"+subRelation().filePathExtended);
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -344,7 +373,7 @@ public class Relation extends BinaryFileCreator{
 	
 	public static void main(String args[])
 	{
-		Relation objOfRelation = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 's', 'i', 'i', 'i')));
+		Relation objOfRelation = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 's', 'i', 'i', 'i')), 3);
 		objOfRelation.theBrainOfRelation();
 		
 //		Relation objOfRelation2 = new Relation("src/RowStore.bin", true, 0, new ArrayList<Character>(Arrays.asList('i', 'i', 'i')));

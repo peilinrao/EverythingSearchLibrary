@@ -65,7 +65,6 @@ public class BinaryFileCreator extends HelperFunctions{
 		return null;
 	}
 	
-	
 	public FileOutputStream getFileOutputStreamObject(String filePathExtended) throws FileNotFoundException
 	{
 		File file = new File(filePathExtended);

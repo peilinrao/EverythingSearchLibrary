@@ -33,7 +33,7 @@ import dataImporter.binaryFileCreator.BinaryFileCreator;
 				then next value
 			 else
 				then next tuple
- * - subRelation(): void
+ * - subRelation(): Relation
  * 		Performs sub-relation
  */
 
@@ -274,7 +274,7 @@ public class Relation extends BinaryFileCreator{
 		{
 			while(dis.available()!=0)
 			{
-				System.out.println(this.columnDataType.get(0).equals('s'));
+//				System.out.println(this.columnDataType.get(0).equals('s'));
 				int location = lengthOfTheFile-dis.available();
 				if(this.columnDataType.get(0).equals('s'))
 				{
@@ -351,6 +351,7 @@ public class Relation extends BinaryFileCreator{
 		try 
 		{
 			ArrayList<ArrayList<Object>> list = distinctValuesOfFirstColumn();
+			DataInputStream dis = getDataInputStreamObject(this.filePathExtended);
 			if(this.columnStore)
 				displayArrayList(list.get(0));
 			else
@@ -360,8 +361,10 @@ public class Relation extends BinaryFileCreator{
 					displayArrayList(list.get(i));
 				}
 			}
+			next(dis);
+			System.out.println("areThereAnyMoreTuples(dis)"+areThereAnyMoreTuples(dis));
 			
-			System.out.println(locationOfTuples("g"));
+			System.out.println("locationOfTuples(g):"+locationOfTuples("g"));
 			
 			System.out.println("subRelation()"+subRelation().filePathExtended);
 

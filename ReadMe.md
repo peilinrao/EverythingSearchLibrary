@@ -4,12 +4,15 @@ Designing entity-aware web indexing systems to search by and for keywords, entit
 ## File Details
 Codebase includes a Java Project with multiple files in ./src folder. This project was built using Eclipse Oxygen with no external libraries requirement. It can be used for following puposes:
 1. Convert CSV to Binary index representation of the Everything Search system
-	FileName: 	.src/dataImporter/CSVImporter.java
-	Input: 	
-				CSV
-				Here, 6 columns (where first three are stored as column store and rest of them as row store)
-				Output: Binary Files: ColStore(i).bin where i ranges from 0 to noOfColumnStores and RowStore.bin
-				Here, 	ColStore(1).bin
+
+FileName: 	.src/dataImporter/CSVImporter.java
+
+Input: 	
+	CSV
+	Here, 6 columns (where first three are stored as column store and rest of them as row store)
+
+Output: Binary Files: ColStore(i).bin where i ranges from 0 to noOfColumnStores and RowStore.bin
+Here, 	ColStore(1).bin
 						ColStore(2).bin
 						ColStore(3).bin
 						RowStore.bin

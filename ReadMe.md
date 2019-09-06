@@ -11,8 +11,8 @@ Input:
 	CSV
 	Here, 6 columns (where first three are stored as column store and rest of them as row store)
 
-Output: Binary Files: ColStore(i).bin where i ranges from 0 to noOfColumnStores and RowStore.bin
-Here, 	ColStore(1).bin
+	Output: Binary Files: ColStore(i).bin where i ranges from 0 to noOfColumnStores and RowStore.bin
+	Here, 	ColStore(1).bin
 						ColStore(2).bin
 						ColStore(3).bin
 						RowStore.bin

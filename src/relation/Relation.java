@@ -379,6 +379,9 @@ public class Relation extends BinaryFileCreator{
 		Relation objOfRelation = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 's', 'i', 'i', 'i')), 3);
 		objOfRelation.theBrainOfRelation();
 		
+		Relation sub = objOfRelation.subRelation();
+		sub.theBrainOfRelation();
+		
 //		Relation objOfRelation2 = new Relation("src/RowStore.bin", true, 0, new ArrayList<Character>(Arrays.asList('i', 'i', 'i')));
 //		objOfRelation2.theBrainOfRelation();
 	}

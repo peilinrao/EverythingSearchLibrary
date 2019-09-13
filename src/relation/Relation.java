@@ -43,9 +43,12 @@ public class Relation extends BinaryFileCreator{
 	int noOfColumnStores;
 	boolean columnStore;
 	int headerBytes;
-	ArrayList<Character> columnDataType = new ArrayList<Character>();
+	ArrayList<Character> columnDataType;
+	ArrayList<ArrayList<Object>> rowStoreValues;
+	int indexForRowStore;
+	int currentColumnIndex;
 	
-	public Relation(String filePathExtended, boolean columnStore, int headerBytes,ArrayList<Character> columnDataType, int noOfColumnStores)
+	public Relation(String filePathExtended, boolean columnStore, int headerBytes,ArrayList<Character> columnDataType, int noOfColumnStores, int currentColumnIndex)
 	{
 		super();
 		this.filePathExtended = filePathExtended;
@@ -53,6 +56,12 @@ public class Relation extends BinaryFileCreator{
 		this.headerBytes = headerBytes;
 		this.columnDataType = columnDataType;
 		this.noOfColumnStores = noOfColumnStores;
+		this.currentColumnIndex = currentColumnIndex;
+		if(!columnStore)
+			this.rowStoreValues = new ArrayList<>();
+		else
+			this.rowStoreValues = null;
+		this.indexForRowStore = 0;
 	}
 	
 	public String convertCurrentPointingByteToString(DataInputStream dis) throws IOException
@@ -88,6 +97,16 @@ public class Relation extends BinaryFileCreator{
 			dis.skipBytes(offset-1);
 		int value = dis.readInt();
 		return value;
+	}
+	
+	public int getCurrentColumnIndex()
+	{
+		return this.currentColumnIndex;
+	}
+	
+	public void setCurrentColumnIndex(int currentColumnIndex)
+	{
+		this.currentColumnIndex = currentColumnIndex;
 	}
 	
 	//Moves the dis object to the location of the next tuple
@@ -207,6 +226,11 @@ public class Relation extends BinaryFileCreator{
 		}
 	}
 	
+	public void popTheTopOfListToRowStoreValues(ArrayList<ArrayList<Object>> list) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	public ArrayList<ArrayList<Object>> distinctValuesOfFirstColumn() throws Exception
 	{
 		ArrayList<ArrayList<Object>> list = new ArrayList<ArrayList<Object>>();
@@ -229,25 +253,47 @@ public class Relation extends BinaryFileCreator{
 		}
 		else
 		{
+//			counterForList = 0
+//					list = []
+//					firstColumnValues = []
+//					while dis.availabale=true:
+//						if(next prefix is NOT ',')
+//							value, freq <- Based on prefix, get next element and also get the frequency of it
+//							Based on freq, add the value in arraylist at that index.:
+//								if counterForList = 0, create a new arraylist and then add
+//								else i=0..freq, get(i).add(value)
+//						else
+//							flush the top value of list to returnValueOfNext()
 			int counterForList = 0;
+			
 			while(dis.available()>0)
 			{
-				System.out.println("distinctValuesOfFirstColumn counterForList:"+counterForList);
+
 				String string = convertCurrentPointingByteToString(dis);
-				System.out.println("distinctValuesOfFirstColumn string:"+string);
+
 				if(string.equals(","))
 				{
 					dis.mark(50);
 					String str = findStringFromGivenOffsetAndDelimeter(-1, "_", dis);
-					System.out.println("distinctValuesOfFirstColumn str:"+str);
+
 					if(str.equals(";"))
 					{
-						counterForList = 0;
+						popTheTopOfListToRowStoreValues(list);
 						dis.reset();
 						dis.skipBytes(1);
 					}
 					else
 					{
+						dis.skipBytes(1);//FrequencyPrefix
+						int frequency = findIntegerFromGivenOffsetAndDelimeter(-1, dis);
+						if(counterForList==0)
+						{
+							for(int i=0;i<frequency;i++)
+							{
+								list.add(new ArrayList<Object>());
+								list.get(i).add(str);
+							}
+						}
 						list.get(counterForList++).add(str);
 						dis.skipBytes(charInBytes+intInBytes);
 					}
@@ -263,7 +309,7 @@ public class Relation extends BinaryFileCreator{
 			return list;
 		}
 	}
-	
+
 	public int locationOfTuples(Object val) throws NumberFormatException, IOException
 	{
 		DataInputStream dis = getDataInputStreamObject(this.filePathExtended);
@@ -325,8 +371,10 @@ public class Relation extends BinaryFileCreator{
 			dis.skipBytes(this.headerBytes-1);
 	}
 	
-	public Relation subRelation()
+	public Relation subRelation() throws SubRelationNotPossibleException
 	{
+		if(this.columnStore)
+		{
 		boolean columnStoreSubRel;
 		String filePathExtendedSubRel;
 		if(this.noOfColumnStores==1)
@@ -341,9 +389,15 @@ public class Relation extends BinaryFileCreator{
 		}
 		int noOfColumnStoresSubRel = this.noOfColumnStores-1;
 		int headerBytesSubRel = 0;
+		int currentColumnIndexSubRel = this.currentColumnIndex + 1;
 		ArrayList<Character> columnDataTypeSubRel = new ArrayList<Character>(this.columnDataType);columnDataTypeSubRel.remove(0);
 		
-		return new Relation(filePathExtendedSubRel, columnStoreSubRel, headerBytesSubRel, columnDataTypeSubRel, noOfColumnStoresSubRel);
+		return new Relation(filePathExtendedSubRel, columnStoreSubRel, headerBytesSubRel, columnDataTypeSubRel, noOfColumnStoresSubRel, currentColumnIndexSubRel);
+		}
+		else
+		{
+			throw new SubRelationNotPossibleException("Can't perform subrelation on Row Store");
+		}
 	}
 	
 	public void theBrainOfRelation()
@@ -374,13 +428,17 @@ public class Relation extends BinaryFileCreator{
 		}
 	}
 	
-	public static void main(String args[])
+	public static void main(String args[]) throws Exception
 	{
-		Relation objOfRelation = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 's', 'i', 'i', 'i')), 3);
+		Relation objOfRelation = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 'i', 'i', 'i')), 2, 1);
 		objOfRelation.theBrainOfRelation();
 		
 		Relation sub = objOfRelation.subRelation();
 		sub.theBrainOfRelation();
+		
+		Relation sub2 = sub.subRelation();
+		System.out.println("subRelation()"+sub2.filePathExtended);
+		sub2.theBrainOfRelation();
 		
 //		Relation objOfRelation2 = new Relation("src/RowStore.bin", true, 0, new ArrayList<Character>(Arrays.asList('i', 'i', 'i')));
 //		objOfRelation2.theBrainOfRelation();

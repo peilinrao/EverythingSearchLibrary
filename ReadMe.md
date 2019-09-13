@@ -11,7 +11,7 @@ Input:	CSV
   		Here, 6 columns (where first three are stored as column store and rest of them as row store)
 
 Output: Binary Files:- ColStore(i).bin where i ranges from 0 to noOfColumnStores and RowStore.bin
-  		Here,   ColStore(1).bin
+  	Here,   ColStore(1).bin
         ColStore(2).bin
         ColStore(3).bin
         RowStore.bin
@@ -21,7 +21,7 @@ Attributes:	filePath = "src/"
 	      	columnDataType = ('s', 's', 's', 'i', 'i', 'i')
 
 Methods:
-		setFilePath(String filePath): void
+	setFilePath(String filePath): void
     		Sets the file Path of the CSV for which indexing is to be done
     	addHeader(String filePathExtended, String storeType): void
         	Adds header to the file created
@@ -55,12 +55,12 @@ Methods:
 ```
 FileName: 	.src/relation/Relation.java
 Input:		Binary File of the table
-			Here, ColumnStore(0).bin file will be given as an input
+		Here, ColumnStore(0).bin file will be given as an input
 Attributes:	String filePathExtended
-			int noOfColumnStores
-			boolean columnStore
-			int headerBytes
-			ArrayList<Character> columnDataType
+		int noOfColumnStores
+		boolean columnStore
+		int headerBytes
+		ArrayList<Character> columnDataType
 
 Methods:
 		void next(DataInputStream dis)

@@ -66,10 +66,14 @@ public class Relation extends BinaryFileCreator{
 	
 	public String convertCurrentPointingByteToString(DataInputStream dis) throws IOException
 	{
-		byte[] str = " ".getBytes();
-		str[0] = dis.readByte();
-		String string = new String(str, "ASCII");
-		return string;
+		if(dis.available()!=0)
+		{
+			byte[] str = " ".getBytes();
+			str[0] = dis.readByte();
+			String string = new String(str, "ASCII");
+			return string;
+		}
+		return null;
 	}
 	
 	public String findStringFromGivenOffsetAndDelimeter(int offset, String delimeter, DataInputStream dis) throws IOException
@@ -81,7 +85,8 @@ public class Relation extends BinaryFileCreator{
 		while(true)
 		{
 			String string = convertCurrentPointingByteToString(dis);
-
+			if(string==null)
+				return null;
 			if(delimeter.contains(string))
 				break;
 			else
@@ -227,10 +232,15 @@ public class Relation extends BinaryFileCreator{
 	}
 	
 	public void popTheTopOfListToRowStoreValues(ArrayList<ArrayList<Object>> list) {
-		// TODO Auto-generated method stub
-		
+		this.rowStoreValues.add(list.get(0));
+		list.remove(0);
+//		if(list.size()>0)
+//			return false;
+//		else
+//			return true;		
 	}
 	
+	//For ColumnStore, the return value holds significance since the list contains the info, but for rowStore, the this.rowStoreValues holds the actual result
 	public ArrayList<ArrayList<Object>> distinctValuesOfFirstColumn() throws Exception
 	{
 		ArrayList<ArrayList<Object>> list = new ArrayList<ArrayList<Object>>();
@@ -264,18 +274,23 @@ public class Relation extends BinaryFileCreator{
 //								else i=0..freq, get(i).add(value)
 //						else
 //							flush the top value of list to returnValueOfNext()
-			int counterForList = 0;
+//			boolean counterForList = true;
 			
 			while(dis.available()>0)
 			{
-
 				String string = convertCurrentPointingByteToString(dis);
+//				System.out.println(string);
 
 				if(string.equals(","))
 				{
 					dis.mark(50);
 					String str = findStringFromGivenOffsetAndDelimeter(-1, "_", dis);
-
+					if(str==null)
+					{
+						System.out.println("End of File");
+						break;
+					}
+//					System.out.println(str);
 					if(str.equals(";"))
 					{
 						popTheTopOfListToRowStoreValues(list);
@@ -286,24 +301,25 @@ public class Relation extends BinaryFileCreator{
 					{
 						dis.skipBytes(1);//FrequencyPrefix
 						int frequency = findIntegerFromGivenOffsetAndDelimeter(-1, dis);
-						if(counterForList==0)
+						for(int i=0;i<frequency;i++)
 						{
-							for(int i=0;i<frequency;i++)
-							{
-								list.add(new ArrayList<Object>());
-								list.get(i).add(str);
-							}
+							list.add(new ArrayList<Object>());
+							list.get(i).add(str);
 						}
-						list.get(counterForList++).add(str);
-						dis.skipBytes(charInBytes+intInBytes);
 					}
 				}
 				else
 				{
-					list.get(counterForList++).add(findIntegerFromGivenOffsetAndDelimeter(-1, dis));
-					dis.skipBytes(charInBytes+intInBytes);
-					displayArrayList(list);
+					int value = findIntegerFromGivenOffsetAndDelimeter(-1, dis);
+					dis.skipBytes(1);//FrequencyPrefix
+					int frequency = findIntegerFromGivenOffsetAndDelimeter(-1, dis);
+					for(int i=0;i<frequency;i++)
+					{
+						list.add(new ArrayList<Object>());
+						list.get(i).add(value);
+					}
 				}
+				System.out.println(this.rowStoreValues);
 			}
 			System.out.print("]");
 			return list;
@@ -406,15 +422,15 @@ public class Relation extends BinaryFileCreator{
 		{
 			ArrayList<ArrayList<Object>> list = distinctValuesOfFirstColumn();
 			DataInputStream dis = getDataInputStreamObject(this.filePathExtended);
-			if(this.columnStore)
-				displayArrayList(list.get(0));
-			else
-			{
-				for(int i=0;i<list.size();i++)
-				{
-					displayArrayList(list.get(i));
-				}
-			}
+//			if(this.columnStore)
+//				displayArrayList(list.get(0));
+//			else
+//			{
+//				for(int i=0;i<list.size();i++)
+//				{
+//					displayArrayList(list.get(i));
+//				}
+//			}
 			next(dis);
 			System.out.println("areThereAnyMoreTuples(dis)"+areThereAnyMoreTuples(dis));
 			
@@ -430,7 +446,7 @@ public class Relation extends BinaryFileCreator{
 	
 	public static void main(String args[]) throws Exception
 	{
-		Relation objOfRelation = new Relation("src/ColumnStore(1).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 's', 'i', 'i', 'i')), 2, 1);
+		Relation objOfRelation = new Relation("src/ColumnStore(2).bin", true, 0, new ArrayList<Character>(Arrays.asList('s', 'i', 'i', 'i')), 1, 2);
 		objOfRelation.theBrainOfRelation();
 		
 		Relation sub = objOfRelation.subRelation();
